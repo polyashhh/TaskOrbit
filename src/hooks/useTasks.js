@@ -1,56 +1,78 @@
 import { useState, useEffect, useCallback } from 'react';
 import { taskApi } from '../services/api';
 
-export function useTasks(){
+const STORAGE_KEY = 'taskorbit-tasks';
+const isDev = import.meta.env.DEV;
+const initialTasks = [/* ... */];
+
+export function useTasks() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const fetchTasks = useCallback(async()=>{
-    try{
-      setLoading(true);
-      setError(null);
-      const data = await taskApi.getAll();
-      setTasks(data);
-    }catch (err){
-      setError('Failed to fetch tasks');
-    }finally{
-      setLoading(false);
+  const loadTasks = useCallback(async () => {
+    if (isDev) {
+      try {
+        const data = await taskApi.getAll();
+        setTasks(data);
+      } catch (err) {
+        setError('Failed to fetch tasks');
+        // Fallback на localStorage если сервер недоступен
+        const stored = localStorage.getItem(STORAGE_KEY);
+        setTasks(stored ? JSON.parse(stored) : initialTasks);
+      }
+    } else {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      setTasks(stored ? JSON.parse(stored) : initialTasks);
     }
+    setLoading(false);
   }, []);
-  const addTask = useCallback(async(taskData)=>{
-    try{
-      const newTask = await taskApi.create(taskData);
-      setTasks((prevTasks) => [...prevTasks, newTask]);
-      return newTask;
-    }catch (err){
-      setError('Failed to add task');
-      throw err;
-    }
-  }, []);
-  const updateTask = useCallback(async(id, taskData)=>{
-    try{
-      const updatedTask = await taskApi.update(id, taskData);
-      setTasks((prevTasks) =>
-        prevTasks.map((task) => (task.id === id ? updatedTask : task))
-      );
-      return updatedTask;
-    }catch (err){
-      setError('Failed to update task');
-      throw err;
-    }
-  }, []);
-  const deleteTask = useCallback(async(id)=>{
-    try{
-      await taskApi.delete(id);
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-    }catch (err){
-      setError('Failed to delete task');
-      throw err;
-    }
+  const saveToStorage = useCallback((tasksToSave) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasksToSave));
   }, []);
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    loadTasks();
+  }, [loadTasks]);
+  const addTask = useCallback(async (taskData) => {
+    const newTask = {
+      ...taskData,
+      id: isDev ? undefined : Date.now().toString(),
+      createdAt: new Date().toISOString()
+    };
+    if (isDev) {
+      const created = await taskApi.create(newTask);
+      setTasks((prev) => [...prev, created]);
+      return created;
+    } else {
+      const taskWithId = { ...newTask, id: Date.now().toString() };
+      const updated = [...tasks, taskWithId];
+      setTasks(updated);
+      saveToStorage(updated);
+      return taskWithId;
+    }
+  }, [tasks, saveToStorage]);
+
+  const updateTask = useCallback(async (id, taskData) => {
+    if (isDev) {
+      const updated = await taskApi.update(id, taskData);
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      return updated;
+    } else {
+      const updated = tasks.map((t) => (t.id === id ? { ...t, ...taskData } : t));
+      setTasks(updated);
+      saveToStorage(updated);
+      return updated.find((t) => t.id === id);
+    }
+  }, [tasks, saveToStorage]);
+  const deleteTask = useCallback(async (id) => {
+    if (isDev) {
+      await taskApi.delete(id);
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+    } else {
+      const updated = tasks.filter((t) => t.id !== id);
+      setTasks(updated);
+      saveToStorage(updated);
+    }
+  }, [tasks]);
   return {
     tasks,
     loading,
@@ -58,6 +80,6 @@ export function useTasks(){
     addTask,
     updateTask,
     deleteTask,
-    refetch: fetchTasks
+    refetch: loadTasks
   };
 }
