@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { HashRouter, Routes, Route } from 'react-router-dom'; // ← Оставьте
 import { motion } from 'framer-motion';
 import { Header } from './components/Header/Header';
 import { TaskColumn } from './components/TaskColumn/TaskColumn';
@@ -13,7 +14,7 @@ function AppContent() {
     },
     [tasks]
   );
-  if (loading){
+  if (loading) {
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -48,10 +49,15 @@ function AppContent() {
   );
 }
 function App(){
-  return(
-    <TaskProvider>
-      <AppContent />
-    </TaskProvider>
+  return (
+    <HashRouter>
+      <TaskProvider>
+        <Routes>
+          <Route path="/" element={<AppContent />} />
+          <Route path="*" element={<AppContent />} /> 
+        </Routes>
+      </TaskProvider>
+    </HashRouter>
   );
 }
 export default App;
