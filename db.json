@@ -4,7 +4,7 @@
       "id": "1",
       "title": "Прочитать отчёты",
       "description": "Отчёты на почте. Изучить и написать руководительнице",
-      "status": "todo",
+      "status": "doing",
       "priority": "high",
       "dueDate": "2026-04-01",
       "createdAt": "2026-03-26T10:00:00Z"
@@ -23,7 +23,7 @@
       "description": "Погулять с Дусей 30 минут",
       "priority": "low",
       "dueDate": "2026-03-27",
-      "status": "doing",
+      "status": "todo",
       "createdAt": "2026-03-26T08:30:49.427Z",
       "id": "Hrp4XtHzSc4"
     },
