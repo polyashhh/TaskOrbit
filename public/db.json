@@ -1,0 +1,41 @@
+{
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Прочитать отчёты",
+      "description": "Отчёты на почте. Изучить и написать руководительнице",
+      "status": "todo",
+      "priority": "high",
+      "dueDate": "2026-04-01",
+      "createdAt": "2026-03-26T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "title": "Кино",
+      "description": "Встретиться с Аней в кино",
+      "status": "done",
+      "priority": "medium",
+      "dueDate": "2026-03-30",
+      "createdAt": "2026-03-26T11:00:00Z"
+    },
+    {
+      "title": "Погулять с собакой",
+      "description": "Погулять с Дусей 30 минут",
+      "priority": "low",
+      "dueDate": "2026-03-27",
+      "status": "doing",
+      "createdAt": "2026-03-26T08:30:49.427Z",
+      "id": "Hrp4XtHzSc4"
+    },
+    {
+      "title": "Позвонить в караоке ",
+      "description": "Нужно забронировать комнату на компанию от 3 человек",
+      "priority": "low",
+      "dueDate": "2026-03-28",
+      "status": "todo",
+      "createdAt": "2026-03-26T08:50:33.635Z",
+      "id": "hqgNQL18gf0"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
